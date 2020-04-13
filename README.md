@@ -1,1 +1,0 @@
-# systemkit-terminal-progress-spinner
