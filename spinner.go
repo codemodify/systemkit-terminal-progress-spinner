@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	terminal "github.com/codemodify/systemkit-terminal"
 	progress "github.com/codemodify/systemkit-terminal-progress"
 )
 
@@ -21,6 +22,8 @@ type Spinner struct {
 	finishedChannel chan bool
 
 	lastPrintLen int
+
+	theTerminal *terminal.Terminal
 }
 
 // NewSpinnerWithConfig -
@@ -42,6 +45,8 @@ func NewSpinnerWithConfig(config progress.Config) progress.Renderer {
 		finishedChannel: make(chan bool),
 
 		lastPrintLen: 0,
+
+		theTerminal: terminal.NewTerminal(config.Writer),
 	}
 }
 
@@ -82,71 +87,73 @@ func NewSpinner(args ...string) progress.Renderer {
 }
 
 // Run -
-func (s *Spinner) Run() {
-	go s.drawLineInLoop()
+func (thisRef *Spinner) Run() {
+	go thisRef.drawLineInLoop()
 }
 
 // Success -
-func (s *Spinner) Success() {
-	s.stop(true)
+func (thisRef *Spinner) Success() {
+	thisRef.stop(true)
 }
 
 // Fail -
-func (s *Spinner) Fail() {
-	s.stop(false)
+func (thisRef *Spinner) Fail() {
+	thisRef.stop(false)
 }
 
-func (s *Spinner) stop(success bool) {
-	s.stopWithSuccess = success
-	s.stopChannel <- true
-	close(s.stopChannel)
+func (thisRef *Spinner) stop(success bool) {
+	thisRef.stopWithSuccess = success
+	thisRef.stopChannel <- true
+	close(thisRef.stopChannel)
 
-	<-s.finishedChannel
+	<-thisRef.finishedChannel
 }
 
-func (s *Spinner) drawLine(char string) (int, error) {
-	return fmt.Fprintf(s.config.Writer, "%s%s%s%s", s.config.Prefix, char, s.config.Suffix, s.config.ProgressMessage)
+func (thisRef *Spinner) drawLine(char string) (int, error) {
+	return fmt.Fprintf(thisRef.config.Writer, "%s%s%s%s", thisRef.config.Prefix, char, thisRef.config.Suffix, thisRef.config.ProgressMessage)
 }
 
-func (s *Spinner) drawOperationProgressLine() {
-	s.spinnerGlyphsIndex++
-	if s.spinnerGlyphsIndex >= len(s.config.ProgressGlyphs) {
-		s.spinnerGlyphsIndex = 0
+func (thisRef *Spinner) drawOperationProgressLine() {
+	thisRef.spinnerGlyphsIndex++
+	if thisRef.spinnerGlyphsIndex >= len(thisRef.config.ProgressGlyphs) {
+		thisRef.spinnerGlyphsIndex = 0
 	}
 
-	if err := s.eraseLine(); err != nil {
+	if err := thisRef.eraseLine(); err != nil {
 		return
 	}
 
-	n, err := s.drawLine(s.config.ProgressGlyphs[s.spinnerGlyphsIndex])
+	n, err := thisRef.drawLine(thisRef.config.ProgressGlyphs[thisRef.spinnerGlyphsIndex])
 	if err != nil {
 		return
 	}
 
-	s.lastPrintLen = n
+	thisRef.lastPrintLen = n
 }
 
-func (s *Spinner) drawOperationStatusLine() {
-	status := s.config.SuccessGlyph
-	if !s.stopWithSuccess {
-		status = s.config.FailGlyph
+func (thisRef *Spinner) drawOperationStatusLine() {
+	status := thisRef.config.SuccessGlyph
+	if !thisRef.stopWithSuccess {
+		status = thisRef.config.FailGlyph
 	}
 
-	if err := s.eraseLine(); err != nil {
+	if err := thisRef.eraseLine(); err != nil {
 		return
 	}
 
-	if _, err := s.drawLine(status); err != nil {
+	if _, err := thisRef.drawLine(status); err != nil {
 		return
 	}
 
-	fmt.Fprintf(s.config.Writer, "\n")
+	fmt.Fprintf(thisRef.config.Writer, "\n")
 
-	s.lastPrintLen = 0
+	thisRef.lastPrintLen = 0
 }
 
-func (s *Spinner) drawLineInLoop() {
-	s.hideCursor()
+func (thisRef *Spinner) drawLineInLoop() {
+	if thisRef.config.HideCursor {
+		thisRef.theTerminal.HideCursor()
+	}
 
 	wg := sync.WaitGroup{}
 
@@ -158,9 +165,9 @@ func (s *Spinner) drawLineInLoop() {
 		for {
 			select {
 			case <-ticker.C:
-				s.drawOperationProgressLine()
+				thisRef.drawOperationProgressLine()
 
-			case <-s.stopChannel:
+			case <-thisRef.stopChannel:
 				ticker.Stop()
 				return
 			}
@@ -170,32 +177,16 @@ func (s *Spinner) drawLineInLoop() {
 	// for stop aka Success/Fail
 	wg.Wait()
 
-	s.drawOperationStatusLine()
+	thisRef.drawOperationStatusLine()
 
-	s.unhideCursor()
-
-	s.finishedChannel <- true
-}
-
-func (s *Spinner) eraseLine() error {
-	_, err := fmt.Fprint(s.config.Writer, "\r"+strings.Repeat(" ", s.lastPrintLen)+"\r")
-	return err
-}
-
-func (s *Spinner) hideCursor() error {
-	if !s.config.HideCursor {
-		return nil
+	if thisRef.config.HideCursor {
+		thisRef.theTerminal.ShowCursor()
 	}
 
-	_, err := fmt.Fprint(s.config.Writer, "\r\033[?25l\r")
-	return err
+	thisRef.finishedChannel <- true
 }
 
-func (s *Spinner) unhideCursor() error {
-	if !s.config.HideCursor {
-		return nil
-	}
-
-	_, err := fmt.Fprint(s.config.Writer, "\r\033[?25h\r")
+func (thisRef *Spinner) eraseLine() error {
+	_, err := fmt.Fprint(thisRef.config.Writer, "\r"+strings.Repeat(" ", thisRef.lastPrintLen)+"\r")
 	return err
 }
