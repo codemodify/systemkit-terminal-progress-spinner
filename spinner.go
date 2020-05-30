@@ -52,38 +52,7 @@ func NewSpinnerWithConfig(config progress.Config) progress.Renderer {
 
 // NewSpinner -
 func NewSpinner(args ...string) progress.Renderer {
-	progressMessage := ""
-	successMessage := ""
-	failMessage := ""
-
-	if len(args) > 0 {
-		progressMessage = args[0]
-	}
-
-	if len(args) > 1 {
-		successMessage = args[1]
-	} else {
-		successMessage = progressMessage
-	}
-
-	if len(args) > 2 {
-		failMessage = args[2]
-	} else {
-		failMessage = progressMessage
-	}
-
-	return NewSpinnerWithConfig(progress.Config{
-		Prefix:          "[",
-		ProgressGlyphs:  []string{"|", "/", "-", "\\"},
-		Suffix:          "] ",
-		ProgressMessage: progressMessage,
-		SuccessGlyph:    string('\u2713'), // check mark
-		SuccessMessage:  successMessage,
-		FailGlyph:       string('\u00D7'), // middle cross
-		FailMessage:     failMessage,
-		Writer:          os.Stdout,
-		HideCursor:      true,
-	})
+	return NewSpinnerWithConfig(*progress.NewDefaultConfig(args...))
 }
 
 // Run -

@@ -1,7 +1,7 @@
 github.com/codemodify/systemkit-terminal v1.0.4 h1:ON+Vm6yxdUUFZYpaiys+EUDrVJKhsLtmBBHUTzd1MKE=
 github.com/codemodify/systemkit-terminal v1.0.4/go.mod h1:5GjFzYZGBCXMoaqHcJcX/2DH+i6g9SPiiz732ChcJZ0=
-github.com/codemodify/systemkit-terminal-progress v1.0.3 h1:VbHJ8crzIrrx0lEOonhaPkCTW+WZmA4h758Mngakik0=
-github.com/codemodify/systemkit-terminal-progress v1.0.3/go.mod h1:Ii63IomGFsK/VhWfceFvCzvRyqhgXssdDD15cgdnS4M=
+github.com/codemodify/systemkit-terminal-progress v1.0.4 h1:cDLxOuq5FYqpsjFGVdV8adWyy6Glt+PgLUxElmjTAJs=
+github.com/codemodify/systemkit-terminal-progress v1.0.4/go.mod h1:Ii63IomGFsK/VhWfceFvCzvRyqhgXssdDD15cgdnS4M=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20200429183012-4b2356b1ed79 h1:IaQbIIB2X/Mp/DKctl6ROxz1KyMlKp4uyvL6+kQ7C88=
 golang.org/x/crypto v0.0.0-20200429183012-4b2356b1ed79/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
