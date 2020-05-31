@@ -121,7 +121,7 @@ func (thisRef *Spinner) drawOperationStatusLine() {
 
 func (thisRef *Spinner) drawLineInLoop() {
 	if thisRef.config.HideCursor {
-		thisRef.theTerminal.HideCursor()
+		thisRef.theTerminal.CursorHide()
 	}
 
 	wg := sync.WaitGroup{}
@@ -149,7 +149,7 @@ func (thisRef *Spinner) drawLineInLoop() {
 	thisRef.drawOperationStatusLine()
 
 	if thisRef.config.HideCursor {
-		thisRef.theTerminal.ShowCursor()
+		thisRef.theTerminal.CursorShow()
 	}
 
 	thisRef.finishedChannel <- true
