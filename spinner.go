@@ -11,8 +11,8 @@ import (
 	progress "github.com/codemodify/systemkit-terminal-progress"
 )
 
-// Spinner -
-type Spinner struct {
+// spinner -
+type spinner struct {
 	config progress.Config
 
 	spinnerGlyphsIndex int
@@ -35,7 +35,7 @@ func NewSpinnerWithConfig(config progress.Config) progress.Renderer {
 	}
 
 	// 2.
-	return &Spinner{
+	return &spinner{
 		config: config,
 
 		spinnerGlyphsIndex: -1,
@@ -56,21 +56,21 @@ func NewSpinner(args ...string) progress.Renderer {
 }
 
 // Run -
-func (thisRef *Spinner) Run() {
+func (thisRef *spinner) Run() {
 	go thisRef.drawLineInLoop()
 }
 
 // Success -
-func (thisRef *Spinner) Success() {
+func (thisRef *spinner) Success() {
 	thisRef.stop(true)
 }
 
 // Fail -
-func (thisRef *Spinner) Fail() {
+func (thisRef *spinner) Fail() {
 	thisRef.stop(false)
 }
 
-func (thisRef *Spinner) stop(success bool) {
+func (thisRef *spinner) stop(success bool) {
 	thisRef.stopWithSuccess = success
 	thisRef.stopChannel <- true
 	close(thisRef.stopChannel)
@@ -78,11 +78,11 @@ func (thisRef *Spinner) stop(success bool) {
 	<-thisRef.finishedChannel
 }
 
-func (thisRef *Spinner) drawLine(char string) (int, error) {
+func (thisRef *spinner) drawLine(char string) (int, error) {
 	return fmt.Fprintf(thisRef.config.Writer, "%s%s%s%s", thisRef.config.Prefix, char, thisRef.config.Suffix, thisRef.config.ProgressMessage)
 }
 
-func (thisRef *Spinner) drawOperationProgressLine() {
+func (thisRef *spinner) drawOperationProgressLine() {
 	thisRef.spinnerGlyphsIndex++
 	if thisRef.spinnerGlyphsIndex >= len(thisRef.config.ProgressGlyphs) {
 		thisRef.spinnerGlyphsIndex = 0
@@ -100,7 +100,7 @@ func (thisRef *Spinner) drawOperationProgressLine() {
 	thisRef.lastPrintLen = n
 }
 
-func (thisRef *Spinner) drawOperationStatusLine() {
+func (thisRef *spinner) drawOperationStatusLine() {
 	status := thisRef.config.SuccessGlyph
 	if !thisRef.stopWithSuccess {
 		status = thisRef.config.FailGlyph
@@ -119,7 +119,7 @@ func (thisRef *Spinner) drawOperationStatusLine() {
 	thisRef.lastPrintLen = 0
 }
 
-func (thisRef *Spinner) drawLineInLoop() {
+func (thisRef *spinner) drawLineInLoop() {
 	if thisRef.config.HideCursor {
 		thisRef.theTerminal.CursorHide()
 	}
@@ -155,7 +155,7 @@ func (thisRef *Spinner) drawLineInLoop() {
 	thisRef.finishedChannel <- true
 }
 
-func (thisRef *Spinner) eraseLine() error {
+func (thisRef *spinner) eraseLine() error {
 	_, err := fmt.Fprint(thisRef.config.Writer, "\r"+strings.Repeat(" ", thisRef.lastPrintLen)+"\r")
 	return err
 }
