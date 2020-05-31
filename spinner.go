@@ -52,7 +52,10 @@ func NewSpinnerWithConfig(config progress.Config) progress.Renderer {
 
 // NewSpinner -
 func NewSpinner(args ...string) progress.Renderer {
-	return NewSpinnerWithConfig(*progress.NewDefaultConfig(args...))
+	defaultConfig := progress.NewDefaultConfig(args...)
+	defaultConfig.ProgressGlyphs = []string{"|", "/", "-", "\\"}
+
+	return NewSpinnerWithConfig(*defaultConfig)
 }
 
 // Run -
